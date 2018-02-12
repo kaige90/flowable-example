@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
+  <process id="programRequest" name="Program Request" isExecutable="true">
+    <documentation>节目审核流程</documentation>
+
+
+    <startEvent id="startEvent"></startEvent>
+
+    <userTask id="school_check" name="学校管理员审核" flowable:candidateGroups="schoolManager"></userTask>
+
+    <sequenceFlow sourceRef="startEvent" targetRef="school_check"></sequenceFlow>
+    
+    <exclusiveGateway id="school_result" name="审核结果"></exclusiveGateway>
+    
+    <sequenceFlow sourceRef="school_check" targetRef="school_result"></sequenceFlow>
+    
+    <userTask id="company_check" name="公司运营审核" flowable:candidateGroups="companyManager" ></userTask>
+    
+    <exclusiveGateway id="company_result" name="审核结果"></exclusiveGateway>
+    
+    <serviceTask id="program_success" name="节目审核成功" flowable:class="org.flowable.MakeProgram"></serviceTask>
+    
+    <endEvent id="endEvent"></endEvent>
+    
+    <sequenceFlow  sourceRef="program_success" targetRef="endEvent"></sequenceFlow>
+    
+    <serviceTask id="program_fail" name="节目审核失败" flowable:class="org.flowable.SendRejectionMail"></serviceTask>
+    
+    <sequenceFlow  sourceRef="program_fail" targetRef="endEvent"></sequenceFlow>
+    
+    <sequenceFlow  sourceRef="company_check" targetRef="company_result"></sequenceFlow>
+    
+    <sequenceFlow id="company_pass" name="审批成功" sourceRef="company_result" targetRef="program_success">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approval}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="company_fail" name="approval=false" sourceRef="company_result" targetRef="program_fail">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approval}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="school_fail" name="审批失败" sourceRef="school_result" targetRef="program_fail">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approval}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="school_pass" name="审批成功" sourceRef="school_result" targetRef="company_check">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approval}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_programRequest">
+    <bpmndi:BPMNPlane bpmnElement="programRequest" id="BPMNPlane_programRequest">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="90.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="school_check" id="BPMNShape_school_check">
+        <omgdc:Bounds height="80.0" width="100.0" x="135.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="school_result" id="BPMNShape_school_result">
+        <omgdc:Bounds height="40.0" width="40.0" x="270.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="company_check" id="BPMNShape_company_check">
+        <omgdc:Bounds height="80.0" width="100.0" x="375.0" y="115.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="company_result" id="BPMNShape_company_result">
+        <omgdc:Bounds height="40.0" width="40.0" x="510.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="program_success" id="BPMNShape_program_success">
+        <omgdc:Bounds height="80.0" width="100.0" x="660.0" y="115.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="805.0" y="141.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="program_fail" id="BPMNShape_program_fail">
+        <omgdc:Bounds height="80.0" width="100.0" x="480.0" y="225.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-0DAA915A-9281-4F5E-A4ED-3A33F3814F71" id="BPMNEdge_sid-0DAA915A-9281-4F5E-A4ED-3A33F3814F71">
+        <omgdi:waypoint x="580.0" y="245.96885813148788"></omgdi:waypoint>
+        <omgdi:waypoint x="805.9157378207403" y="159.98016899556595"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-EDB8BACD-E1AB-4D14-B2A0-912862CF7EB6" id="BPMNEdge_sid-EDB8BACD-E1AB-4D14-B2A0-912862CF7EB6">
+        <omgdi:waypoint x="235.0" y="157.86729857819904"></omgdi:waypoint>
+        <omgdi:waypoint x="271.3181818181818" y="156.3181818181818"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="school_fail" id="BPMNEdge_school_fail">
+        <omgdi:waypoint x="303.5386819484241" y="161.46131805157594"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="242.13987473903967"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-AA4CB871-8321-4A2A-983A-5A0F75C86D8B" id="BPMNEdge_sid-AA4CB871-8321-4A2A-983A-5A0F75C86D8B">
+        <omgdi:waypoint x="119.97078867724333" y="164.06432570767228"></omgdi:waypoint>
+        <omgdi:waypoint x="135.0" y="163.125"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="company_fail" id="BPMNEdge_company_fail">
+        <omgdi:waypoint x="530.4128440366973" y="174.58715596330276"></omgdi:waypoint>
+        <omgdi:waypoint x="530.1826484018264" y="225.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="company_pass" id="BPMNEdge_company_pass">
+        <omgdi:waypoint x="549.5530726256983" y="155.44692737430168"></omgdi:waypoint>
+        <omgdi:waypoint x="660.0" y="155.1392757660167"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-7B259292-D1E6-4EB9-B77D-FB8BDAECCE11" id="BPMNEdge_sid-7B259292-D1E6-4EB9-B77D-FB8BDAECCE11">
+        <omgdi:waypoint x="760.0" y="155.0"></omgdi:waypoint>
+        <omgdi:waypoint x="805.0" y="155.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-7E005DF9-8AE6-495B-89D9-76CBCFEE3743" id="BPMNEdge_sid-7E005DF9-8AE6-495B-89D9-76CBCFEE3743">
+        <omgdi:waypoint x="475.0" y="155.23696682464455"></omgdi:waypoint>
+        <omgdi:waypoint x="510.4047619047619" y="155.4047619047619"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="school_pass" id="BPMNEdge_school_pass">
+        <omgdi:waypoint x="309.57089552238807" y="155.42910447761193"></omgdi:waypoint>
+        <omgdi:waypoint x="375.0" y="155.18587360594796"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
